@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f7f7f4" />
+  <title>Pray Note</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+  <style>
+    :root {
+      --bg: #f7f7f4;
+      --surface: #ffffff;
+      --text: #20201d;
+      --muted: #8e8e86;
+      --line: #e7e7e1;
+      --line-strong: #d8d8d0;
+      --accent: #6f7564;
+      --accent-soft: #eef0e9;
+      --danger: #a0645c;
+      --radius: 18px;
+      --shadow: 0 1px 0 rgba(32, 32, 29, 0.04);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { background: var(--bg); }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background: var(--bg);
+      font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: -0.018em;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, textarea, input { font: inherit; }
+    button { color: inherit; }
+
+    .app {
+      width: min(100%, 760px);
+      margin: 0 auto;
+      padding: 22px 20px 72px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 58px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex: 0 0 auto;
+    }
+
+    .brand-name {
+      font-size: 14px;
+      line-height: 1;
+      font-weight: 650;
+      letter-spacing: -0.025em;
+    }
+
+    .version {
+      flex: 0 0 auto;
+      padding: 6px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(255,255,255,.55);
+      font-size: 11px;
+      line-height: 1;
+      font-weight: 600;
+      letter-spacing: .02em;
+    }
+
+    .hero { margin-bottom: 34px; }
+
+    .date-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 17px;
+    }
+
+    .date-buttons {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .icon-btn,
+    .today-btn {
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      transition: background .18s ease, color .18s ease, transform .18s ease;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .today-btn {
+      padding: 9px 10px;
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .icon-btn:hover,
+    .today-btn:hover { background: var(--accent-soft); color: var(--accent); }
+    .icon-btn:active,
+    .today-btn:active { transform: scale(.96); }
+
+    .date-kicker {
+      margin: 0 0 7px;
+      color: var(--accent);
+      font-size: 13px;
+      line-height: 1.4;
+      font-weight: 650;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(31px, 7vw, 46px);
+      line-height: 1.08;
+      font-weight: 680;
+      letter-spacing: -0.045em;
+    }
+
+    .subcopy {
+      margin: 13px 0 0;
+      max-width: 480px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+      word-break: keep-all;
+    }
+
+    .progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .progress-track {
+      position: relative;
+      height: 3px;
+      flex: 1 1 auto;
+      overflow: hidden;
+      border-radius: 99px;
+      background: #e3e3dd;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: var(--accent);
+      transition: width .25s ease;
+    }
+
+    .progress-text {
+      min-width: 38px;
+      color: var(--muted);
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+
+    .entries {
+      display: grid;
+      gap: 12px;
+    }
+
+    .entry {
+      position: relative;
+      display: grid;
+      grid-template-columns: 38px 1fr auto;
+      align-items: start;
+      gap: 10px;
+      padding: 17px 14px 16px 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+    }
+
+    .entry:focus-within {
+      border-color: var(--line-strong);
+      box-shadow: 0 8px 30px rgba(32, 32, 29, .045);
+      transform: translateY(-1px);
+    }
+
+    .check {
+      width: 28px;
+      height: 28px;
+      margin-top: 1px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line-strong);
+      border-radius: 50%;
+      background: #fff;
+      cursor: pointer;
+      transition: all .18s ease;
+    }
+
+    .check svg {
+      width: 13px;
+      height: 13px;
+      opacity: 0;
+      transition: opacity .18s ease;
+    }
+
+    .entry.done .check {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: white;
+    }
+
+    .entry.done .check svg { opacity: 1; }
+    .entry.done textarea { color: #65655f; }
+
+    .entry-body { min-width: 0; }
+
+    .entry-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.2;
+      font-weight: 600;
+    }
+
+    .entry-number { color: var(--accent); }
+
+    textarea {
+      display: block;
+      width: 100%;
+      min-height: 54px;
+      resize: none;
+      overflow: hidden;
+      border: 0;
+      outline: 0;
+      padding: 0;
+      color: var(--text);
+      background: transparent;
+      font-size: 15px;
+      line-height: 1.72;
+      letter-spacing: -0.017em;
+    }
+
+    textarea::placeholder { color: #b8b8b0; }
+
+    .delete-btn {
+      width: 30px;
+      height: 30px;
+      border: 0;
+      border-radius: 9px;
+      color: #b1b1a9;
+      background: transparent;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity .18s ease, color .18s ease, background .18s ease;
+    }
+
+    .entry:hover .delete-btn,
+    .entry:focus-within .delete-btn { opacity: 1; }
+    .delete-btn:hover { color: var(--danger); background: #f7efed; }
+
+    .add-btn {
+      width: 100%;
+      margin-top: 12px;
+      padding: 17px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      border: 1px dashed var(--line-strong);
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: border-color .18s ease, color .18s ease, background .18s ease;
+    }
+
+    .add-btn:hover {
+      border-color: #bdc0b6;
+      color: var(--accent);
+      background: rgba(255,255,255,.45);
+    }
+
+    .reflection {
+      margin-top: 42px;
+      padding-top: 26px;
+      border-top: 1px solid var(--line);
+    }
+
+    .reflection-label {
+      display: block;
+      margin-bottom: 9px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.3;
+      font-weight: 650;
+      letter-spacing: .01em;
+    }
+
+    .reflection input {
+      width: 100%;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      outline: 0;
+      padding: 4px 0 12px;
+      color: var(--text);
+      background: transparent;
+      font-size: 15px;
+      line-height: 1.5;
+      letter-spacing: -0.018em;
+      transition: border-color .18s ease;
+    }
+
+    .reflection input::placeholder { color: #b8b8b0; }
+    .reflection input:focus { border-color: var(--accent); }
+
+    .save-state {
+      min-height: 18px;
+      margin-top: 13px;
+      color: #aaa9a1;
+      font-size: 11px;
+      line-height: 1.4;
+      text-align: right;
+    }
+
+    @media (max-width: 560px) {
+      .app { padding: 18px 16px 56px; }
+      .topbar { margin-bottom: 44px; }
+      .date-nav { margin-bottom: 13px; }
+      .entry { grid-template-columns: 34px 1fr auto; padding: 15px 10px 14px 14px; gap: 8px; border-radius: 16px; }
+      .delete-btn { opacity: .65; }
+      textarea { font-size: 15px; line-height: 1.68; }
+      .reflection { margin-top: 34px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand" aria-label="Pray Note">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-name">Pray Note</span>
+      </div>
+      <span class="version">v1.0.0</span>
+    </header>
+
+    <section class="hero">
+      <div class="date-nav">
+        <div class="date-buttons">
+          <button class="icon-btn" id="prevDay" type="button" aria-label="이전 날짜">‹</button>
+          <button class="icon-btn" id="nextDay" type="button" aria-label="다음 날짜">›</button>
+        </div>
+        <button class="today-btn" id="todayBtn" type="button">오늘</button>
+      </div>
+
+      <p class="date-kicker" id="dateKicker"></p>
+      <h1>오늘의 기도</h1>
+      <p class="subcopy">마음에 있는 것을 다섯 가지부터 천천히 적어보세요. 더 기도하고 싶은 내용은 필요한 만큼 추가할 수 있습니다.</p>
+
+      <div class="progress-wrap" aria-label="기도 완료 진행률">
+        <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+        <span class="progress-text" id="progressText">0 / 5</span>
+      </div>
+    </section>
+
+    <section class="entries" id="entries" aria-label="기도 목록"></section>
+    <button class="add-btn" id="addEntry" type="button"><span aria-hidden="true">＋</span> 기도 한 가지 더</button>
+
+    <section class="reflection">
+      <label class="reflection-label" for="verse">오늘 마음에 남은 말씀 · 문장</label>
+      <input id="verse" type="text" autocomplete="off" placeholder="한 문장만 가볍게 남겨도 좋아요" />
+      <div class="save-state" id="saveState" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <template id="entryTemplate">
+    <article class="entry">
+      <button class="check" type="button" aria-label="기도 완료로 표시">
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M3.25 8.25 6.4 11.4 12.9 4.9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="entry-body">
+        <div class="entry-meta"><span class="entry-number"></span><span>PRAYER</span></div>
+        <textarea rows="2" placeholder="기도 제목을 적어보세요"></textarea>
+      </div>
+      <button class="delete-btn" type="button" aria-label="기도 항목 삭제">×</button>
+    </article>
+  </template>
+
+  <script>
+    const VERSION = '1.0.0';
+    const STORAGE_KEY = 'praynote:data:v1';
+    const BASE_COUNT = 5;
+
+    const entriesEl = document.querySelector('#entries');
+    const template = document.querySelector('#entryTemplate');
+    const dateKicker = document.querySelector('#dateKicker');
+    const progressBar = document.querySelector('#progressBar');
+    const progressText = document.querySelector('#progressText');
+    const verseInput = document.querySelector('#verse');
+    const saveState = document.querySelector('#saveState');
+
+    let currentDate = startOfDay(new Date());
+    let saveTimer;
+
+    function startOfDay(date) {
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    }
+
+    function dateKey(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function formatDate(date) {
+      return new Intl.DateTimeFormat('ko-KR', {
+        month: 'long', day: 'numeric', weekday: 'long'
+      }).format(date);
+    }
+
+    function emptyDay() {
+      return {
+        prayers: Array.from({ length: BASE_COUNT }, () => ({ text: '', done: false })),
+        verse: ''
+      };
+    }
+
+    function loadAll() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch {
+        return {};
+      }
+    }
+
+    function loadDay() {
+      const all = loadAll();
+      const stored = all[dateKey(currentDate)];
+      const day = stored || emptyDay();
+      const prayers = Array.isArray(day.prayers) ? day.prayers : [];
+      while (prayers.length < BASE_COUNT) prayers.push({ text: '', done: false });
+      return { prayers, verse: day.verse || '' };
+    }
+
+    function saveDay() {
+      const all = loadAll();
+      const prayers = [...entriesEl.querySelectorAll('.entry')].map(entry => ({
+        text: entry.querySelector('textarea').value,
+        done: entry.classList.contains('done')
+      }));
+
+      all[dateKey(currentDate)] = { prayers, verse: verseInput.value };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+      updateProgress();
+      announceSaved();
+    }
+
+    function queueSave() {
+      clearTimeout(saveTimer);
+      saveState.textContent = '저장 중…';
+      saveTimer = setTimeout(saveDay, 260);
+    }
+
+    function announceSaved() {
+      saveState.textContent = '이 기기에서 자동 저장됨';
+      clearTimeout(saveState._fadeTimer);
+      saveState._fadeTimer = setTimeout(() => { saveState.textContent = ''; }, 1600);
+    }
+
+    function autoResize(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${Math.max(54, textarea.scrollHeight)}px`;
+    }
+
+    function createEntry(prayer, index) {
+      const node = template.content.firstElementChild.cloneNode(true);
+      const textarea = node.querySelector('textarea');
+      const check = node.querySelector('.check');
+      const deleteBtn = node.querySelector('.delete-btn');
+
+      node.querySelector('.entry-number').textContent = String(index + 1).padStart(2, '0');
+      textarea.value = prayer.text || '';
+      node.classList.toggle('done', Boolean(prayer.done));
+      deleteBtn.hidden = index < BASE_COUNT;
+
+      textarea.addEventListener('input', () => {
+        autoResize(textarea);
+        queueSave();
+      });
+
+      check.addEventListener('click', () => {
+        node.classList.toggle('done');
+        check.setAttribute('aria-label', node.classList.contains('done') ? '기도 완료 표시 해제' : '기도 완료로 표시');
+        queueSave();
+      });
+
+      deleteBtn.addEventListener('click', () => {
+        if (entriesEl.children.length <= BASE_COUNT) return;
+        node.remove();
+        renumberEntries();
+        queueSave();
+      });
+
+      requestAnimationFrame(() => autoResize(textarea));
+      return node;
+    }
+
+    function renumberEntries() {
+      [...entriesEl.children].forEach((entry, index) => {
+        entry.querySelector('.entry-number').textContent = String(index + 1).padStart(2, '0');
+        entry.querySelector('.delete-btn').hidden = index < BASE_COUNT;
+      });
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const entries = [...entriesEl.querySelectorAll('.entry')];
+      const done = entries.filter(entry => entry.classList.contains('done')).length;
+      const total = entries.length || BASE_COUNT;
+      const percent = Math.round((done / total) * 100);
+      progressBar.style.width = `${percent}%`;
+      progressText.textContent = `${done} / ${total}`;
+    }
+
+    function render() {
+      const day = loadDay();
+      dateKicker.textContent = formatDate(currentDate);
+      entriesEl.innerHTML = '';
+      day.prayers.forEach((prayer, index) => entriesEl.appendChild(createEntry(prayer, index)));
+      verseInput.value = day.verse;
+      saveState.textContent = '';
+      updateProgress();
+      document.title = `${formatDate(currentDate)} · Pray Note`;
+    }
+
+    function moveDate(days) {
+      clearTimeout(saveTimer);
+      saveDay();
+      const next = new Date(currentDate);
+      next.setDate(next.getDate() + days);
+      currentDate = startOfDay(next);
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    document.querySelector('#prevDay').addEventListener('click', () => moveDate(-1));
+    document.querySelector('#nextDay').addEventListener('click', () => moveDate(1));
+    document.querySelector('#todayBtn').addEventListener('click', () => {
+      clearTimeout(saveTimer);
+      saveDay();
+      currentDate = startOfDay(new Date());
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.querySelector('#addEntry').addEventListener('click', () => {
+      const entry = createEntry({ text: '', done: false }, entriesEl.children.length);
+      entriesEl.appendChild(entry);
+      renumberEntries();
+      queueSave();
+      entry.querySelector('textarea').focus();
+      entry.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    verseInput.addEventListener('input', queueSave);
+    window.addEventListener('beforeunload', saveDay);
+
+    render();
+  </script>
+</body>
+</html>
